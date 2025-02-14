@@ -13,6 +13,7 @@ class ParameterType(Enum):
 	StringParameter = 'string'
 		
 	# CAD-parameters
+	ColorParameter = 'color'     # #RRGGBBAA
 	AxisParameter = 'axis' # X, Y, Z 
 	LocationParameter = 'location' # x,y,z 
 	RotationParameter = 'rotation'  #
