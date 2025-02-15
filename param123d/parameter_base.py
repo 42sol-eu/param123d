@@ -38,9 +38,7 @@ class BaseParameter:
         self._value = value
                 
         self._help = help
-        
-        value_type = type(self._value)
-                
+                        
         
     def __str__(self) -> str:
         return f"{self._name} = {self._value} {self._type}"
@@ -130,13 +128,8 @@ class BaseParameter:
         
         elif self._type == ParameterType.ChoiceParameter:
             # a choice value defines a list of same values 
-            if type(value) == list or type(value) == tuple or type(value) == set:
-                item_type = type(value[0])
-                for item in value:
-                    if not isinstance(item, item_type):
-                        return False
-                # all items have the same type! 
-                return (isinstance(value, int) or isinstance(value, float) or isinstance(value, str))
+            if type(value) == str or type(value) == int  or type(value) == float:
+                return True
             else:
                 return False
             
@@ -209,7 +202,10 @@ class RangeParameter(BaseParameter):
     _default_value: Optional[float] = None
 
     def __init__(self, name: str, value: Union[bool, int, float, str, list, tuple, set], param_type: ParameterType, unit: str,  help: Optional[str] = None, min_value: Optional[float] = None, max_value: Optional[float] = None, step_value: Optional[float] = None, default_value: Optional[float] = None):
-        
+        super().__init__(name, value, param_type, help)
+
+        value_type = type(self.value)
+
         if min_value is not None: 
             if not isinstance(min_value, value_type):
                 raise ValueError(f"Parameter min_value '{min_value}' is not a valid value for type '{value_type}' determined by the given value.")
@@ -254,13 +250,12 @@ class RangeParameter(BaseParameter):
             raise ValueError(f"Parameter unit '{unit}' is not a valid unit.")
         self._unit = unit
 
-        super().__init__(name, value, param_type, help)
 
     def __str__(self) -> str:
-        return f"{self._name} = {self._value} {self._unit}"
+        return f"{self._name} = {self.value} {self._unit}"
     
     def __repr__(self) -> str:
-        return f"RangeParameter({self._name}, {self._value}, {self._unit}, {self._type})"
+        return f"RangeParameter({self._name}, {self.value}, {self._unit}, {self._type})"
 
     def is_unit(self, unit: str) -> bool:
         # TODO: implement is_unit() member based on of the given libraries or strings.
@@ -295,6 +290,7 @@ class CalculationParameter(BaseParameter):
     _unit: str = None
     
     def __init__(self, name: str, value: Union[bool, int, float, str, list, tuple, set], param_type: ParameterType, unit: str, calc: Optional[str] = None, help: Optional[str] = None):
+        super().__init__(name, value, param_type, help)
         
         if calc and not self.is_calculation(calc):
             raise ValueError(f"Parameter calculation '{calc}' is not a valid Python calculation.")
@@ -306,14 +302,13 @@ class CalculationParameter(BaseParameter):
         
         self._unit = unit
         
-        super().__init__(name, value, param_type, help)
         
 
     def __str__(self) -> str:
-        return f"{self._name} = {self._value} {self._unit}"
+        return f"{self._name} = {self.value} {self._unit}"
     
     def __repr__(self) -> str:
-        return f"CalculationParameter({self._name}, {self._value}, {self._unit}, {self._type})"
+        return f"CalculationParameter({self._name}, {self.value}, {self._unit}, {self._type})"
 
     def is_unit(self, unit: str) -> bool:
         # TODO: implement is_unit() member based on of the given libraries or strings.

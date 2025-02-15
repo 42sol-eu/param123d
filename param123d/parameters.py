@@ -124,12 +124,25 @@ class ChoiceParameter(BaseParameter):
     
     def __init__(self, name: str, choices: List[Union[str, int, float]], default_value: Union[str, int, float] = '', help: str = None):
         """Initialize the ChoiceParameter class."""
-        self._choices = choices    
         super().__init__(name,  self._choices[0], ParameterType.ChoiceParameter, help)
+        
+        if self.valid_choices(choices):
+            self._choices = choices    
         
     # TODO: implement ChoiceParameter.create_ui()
     
-
+    def valid_choices(self, value : List[Union[str, int, float]]) -> bool:
+        # a choice value defines a list of same values 
+        if type(value) == list or type(value) == tuple or type(value) == set:
+            item_type = type(value[0])
+            for item in value:
+                if not isinstance(item, item_type):
+                    return False
+            # all items have the same type! 
+            return (isinstance(value, int) or isinstance(value, float) or isinstance(value, str))
+        else:
+            return False
+        
 
 # ! CalculationParameter = 'calculation'   #
 # ! LinearTranslationParameter = 'linear'  # Linear Function
@@ -185,12 +198,10 @@ class TextParameter(StringParameter):
 class FileNameParameter(BaseParameter):
     """A file parameter class that inherits from the Parameter class."""
     
-    def __init__(self, name : str, value : str, default_value : str = '', help : str = None):
+    def __init__(self, name : str, value : str, help : str = None):
         """Initialize the FileParameter class."""
-        no_unit = None 
-        no_calc = None 
         
-        super().__init__(name, value, ParameterType.FileNameParameter, no_unit, no_calc, help)
+        super().__init__(name, value, ParameterType.FileNameParameter, help)
 
 
 class FileParameter(BaseParameter):
@@ -198,18 +209,16 @@ class FileParameter(BaseParameter):
     
     def __init__(self, name: Union[str, Path], value: str, help: str = None):
         """Initialize the FileParameter class."""
-        no_unit = '' 
-        no_calc = None 
         
-        super().__init__(name, value, ParameterType.FileParameter, no_unit, no_calc, help)
+        super().__init__(name, value, ParameterType.FileParameter, help)
 
 
 class PathParameter(BaseParameter):
     """A path parameter class that inherits from the Parameter class."""
     
-    def __init__(self, name : str, value : str, default_value : str = '', help : str = None):
+    def __init__(self, name : str, value : str, help : str = None):
         """Initialize the PathParameter class."""
         
-        super().__init__(name, value, ParameterType.PathParameter, no_unit, no_calc, help)
+        super().__init__(name, value, ParameterType.PathParameter, help)
 
 
