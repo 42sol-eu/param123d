@@ -1,9 +1,9 @@
-from param123d import ParameterGroup, Parameter
+from param123d import ParameterGroup, BaseParameter
 
 #%% [Parameters]
 with ParameterGroup("MyGroup"):
-    a = Parameter(default=42)
-    b = Parameter(default="Hello")
+    a = BaseParameter(default=42)
+    b = BaseParameter(default="Hello")
     c = 10
 
 #%% Another Section

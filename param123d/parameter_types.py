@@ -7,7 +7,7 @@ from enum import Enum
 
 class ParameterType(Enum):
 	# Core-type parameters
-	BoolParameter = 'bool'       # 
+	BooleanParameter = 'bool'       # 
 	IntegerParameter = 'integer' # if >= 0: also used for counting
 	FloatParameter = 'float'     #
 	StringParameter = 'string'

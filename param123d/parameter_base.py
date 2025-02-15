@@ -5,26 +5,22 @@ import ast
 from pathlib import Path
 import re
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 # %% [Main Class]
 
+
 @dataclass
-class Parameter:
+class BaseParameter:
     """
     """
     _name: str 
     _value: float
-    _unit: str
     _type: ParameterType
     _help: Optional[str] = None
-    _calc: Optional[str] = None
-    _min_value: Optional[float] = None
-    _max_value: Optional[float] = None
-    _step_value: Optional[float] = None
-    _default_value: Optional[float] = None
 
-    def __init__(self, name: str, value: Union[bool, int, float, str, list, tuple, set], param_type: ParameterType, unit: str, calc: Optional[str] = None, help: Optional[str] = None, min_value: Optional[float] = None, max_value: Optional[float] = None, step_value: Optional[float] = None, default_value: Optional[float] = None):
+    def __init__(self, name: str, value: Union[bool, int, float, str, list, tuple, set], param_type: ParameterType, help: Optional[str] = None):
         if not self.is_identifier(name):
             raise ValueError(f"Parameter name '{name}' is not a valid Python identifier.")
         
@@ -40,63 +36,17 @@ class Parameter:
             raise ValueError(f"Parameter value '{value}' is not a valid value for type '{param_type}'.")
         
         self._value = value
-        
-        self._unit = unit
-        
-        if calc and not self.is_calculation(calc):
-            raise ValueError(f"Parameter calculation '{calc}' is not a valid Python calculation.")
                 
-        self._calc = calc
-        
         self._help = help
         
-        value_type = type(self.value)
-        if min_value is not None: 
-            if not isinstance(min_value, value_type):
-                raise ValueError(f"Parameter min_value '{min_value}' is not a valid value for type '{value_type}' determined by the given value.")
-            
-            self._min_value = min_value
-        else:
-            self._min_value = None
-        
-        if max_value is not None:
-            if not isinstance(max_value, value_type):
-                raise ValueError(f"Parameter max_value '{max_value}' is not a valid value for type '{value_type}' determined by the given value.")
-            elif min_value and min_value > max_value:
-                raise ValueError(f"Parameter min_value '{min_value}' is greater than max_value '{max_value}'.")
-            
-            self._max_value = max_value
-        else:
-            self._max_value = None
-        
-        if step_value is not None:
-            if not isinstance(step_value, value_type):
-                raise ValueError(f"Parameter step_value '{step_value}' is not a valid value for type '{value_type}' determined by the given value.")
-            elif max_value and min_value and step_value > (max_value - min_value):
-                raise ValueError(f"Parameter step_value '{step_value}' is greater than the range of min_value '{min_value}' and max_value '{max_value}'.")
-            
-            self._step_value = step_value
-        else:
-            self._step_value = None
-        
-        if default_value is not None:
-            if not isinstance(default_value, value_type):
-                raise ValueError(f"Parameter default_value '{default_value}' is not a valid value for type '{value_type}' determined by the given value.")
-            elif max_value and default_value > max_value:
-                raise ValueError(f"Parameter default_value '{default_value}' is greater than max_value '{max_value}'.")
-            elif min_value and default_value < min_value:
-                raise ValueError(f"Parameter default_value '{default_value}' is smaller than min_value '{min_value}'.")
-            
-            self._default_value = default_value
-        else:
-            self._default_value = None
+        value_type = type(self._value)
                 
         
     def __str__(self) -> str:
-        return f"{self._name} = {self._value} {self._unit}"
+        return f"{self._name} = {self._value} {self._type}"
     
     def __repr__(self) -> str:
-        return f"Parameter({self._name}, {self._value}, {self._unit}, {self._type})"
+        return f"Parameter({self._name}, {self._value}, {self._type})"
     
     def is_identifier(self, name: str) -> bool:
         try:
@@ -118,7 +68,7 @@ class Parameter:
         
     
     def is_valid_type(self, value: Union[bool, int, float, str, list, tuple, set]) -> bool:
-        if self._type == ParameterType.BoolParameter:
+        if self._type == ParameterType.BooleanParameter:
             return isinstance(value, bool)
         
         elif self._type == ParameterType.IntegerParameter:
@@ -224,23 +174,6 @@ class Parameter:
         else:
             return False
         
-    def is_unit(self, unit: str) -> bool:
-        # TODO: implement is_unit() member based on of the given libraries or strings.
-        return True
-    
-    def is_calculation(self, calc: str) -> bool:
-        check = False 
-        
-        try:
-            tree = ast.parse(calc)
-            # TODO: it should only be a simple calculation
-            
-            check = True
-            
-        except SyntaxError:
-            return False
-        
-        return check
     
     @property
     def name(self) -> str:
@@ -250,21 +183,88 @@ class Parameter:
     def value(self) -> Union[bool, int, float, str, list, tuple, set]:
         return self._value
     
-    @property
-    def unit(self) -> str:
-        return self._unit
     
     @property
     def param_type(self) -> ParameterType:
         return self._type
-    
-    @property
-    def calc(self) -> Optional[str]:
-        return self._calc
+
     
     @property
     def help(self) -> Optional[str]:
         return self._help
+
+    @help.setter
+    def set_help(self, value) -> None:
+        self._help = value
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+class RangeParameter(BaseParameter):
+    
+    _min_value: Optional[float] = None
+    _max_value: Optional[float] = None
+    _step_value: Optional[float] = None
+    _default_value: Optional[float] = None
+
+    def __init__(self, name: str, value: Union[bool, int, float, str, list, tuple, set], param_type: ParameterType, unit: str,  help: Optional[str] = None, min_value: Optional[float] = None, max_value: Optional[float] = None, step_value: Optional[float] = None, default_value: Optional[float] = None):
+        
+        if min_value is not None: 
+            if not isinstance(min_value, value_type):
+                raise ValueError(f"Parameter min_value '{min_value}' is not a valid value for type '{value_type}' determined by the given value.")
+            
+            self._min_value = min_value
+        else:
+            self._min_value = None
+        
+        if max_value is not None:
+            if not isinstance(max_value, value_type):
+                raise ValueError(f"Parameter max_value '{max_value}' is not a valid value for type '{value_type}' determined by the given value.")
+            elif min_value and min_value > max_value:
+                raise ValueError(f"Parameter min_value '{min_value}' is greater than max_value '{max_value}'.")
+            
+            self._max_value = max_value
+        else:
+            self._max_value = None
+        
+        if step_value is not None:
+            if not isinstance(step_value, value_type):
+                raise ValueError(f"Parameter step_value '{step_value}' is not a valid value for type '{value_type}' determined by the given value.")
+            elif max_value and min_value and step_value > (max_value - min_value):
+                raise ValueError(f"Parameter step_value '{step_value}' is greater than the range of min_value '{min_value}' and max_value '{max_value}'.")
+            
+            self._step_value = step_value
+        else:
+            self._step_value = None
+        
+        if default_value is not None:
+            if not isinstance(default_value, value_type):
+                raise ValueError(f"Parameter default_value '{default_value}' is not a valid value for type '{value_type}' determined by the given value.")
+            elif max_value and default_value > max_value:
+                raise ValueError(f"Parameter default_value '{default_value}' is greater than max_value '{max_value}'.")
+            elif min_value and default_value < min_value:
+                raise ValueError(f"Parameter default_value '{default_value}' is smaller than min_value '{min_value}'.")
+            
+            self._default_value = default_value
+        else:
+            self._default_value = None
+            
+        if unit and not self.is_unit(unit):
+            raise ValueError(f"Parameter unit '{unit}' is not a valid unit.")
+        self._unit = unit
+
+        super().__init__(name, value, param_type, help)
+
+    def __str__(self) -> str:
+        return f"{self._name} = {self._value} {self._unit}"
+    
+    def __repr__(self) -> str:
+        return f"RangeParameter({self._name}, {self._value}, {self._unit}, {self._type})"
+
+    def is_unit(self, unit: str) -> bool:
+        # TODO: implement is_unit() member based on of the given libraries or strings.
+        return True
 
     @property
     def min_value(self) -> Optional[float]:
@@ -282,3 +282,61 @@ class Parameter:
     def default_value(self) -> Optional[float]:
         return self._default_value
 
+    @property
+    def unit(self) -> str:
+        return self._unit
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+class CalculationParameter(BaseParameter):
+    
+    _calc: Optional[str] = None
+    _unit: str = None
+    
+    def __init__(self, name: str, value: Union[bool, int, float, str, list, tuple, set], param_type: ParameterType, unit: str, calc: Optional[str] = None, help: Optional[str] = None):
+        
+        if calc and not self.is_calculation(calc):
+            raise ValueError(f"Parameter calculation '{calc}' is not a valid Python calculation.")
+                
+        self._calc = calc
+        
+        if unit and not self.is_unit(unit):
+            raise ValueError(f"Parameter unit '{unit}' is not a valid unit.")
+        
+        self._unit = unit
+        
+        super().__init__(name, value, param_type, help)
+        
+
+    def __str__(self) -> str:
+        return f"{self._name} = {self._value} {self._unit}"
+    
+    def __repr__(self) -> str:
+        return f"CalculationParameter({self._name}, {self._value}, {self._unit}, {self._type})"
+
+    def is_unit(self, unit: str) -> bool:
+        # TODO: implement is_unit() member based on of the given libraries or strings.
+        return True
+    
+    def is_calculation(self, calc: str) -> bool:
+        check = False 
+        
+        try:
+            tree = ast.parse(calc)
+            # TODO: it should only be a simple calculation
+            
+            check = True
+            
+        except SyntaxError:
+            return False
+        
+        return check
+        
+    @property
+    def unit(self) -> str:
+        return self._unit
+
+    @property
+    def calc(self) -> Optional[str]:
+        return self._calc

@@ -18,6 +18,9 @@ class CodeContext:
     
     def __init__(self, file_name: str, line_number: int, positions: Tuple[int, int], code_context: List[str]):
         
+        if not Path(file_name).is_absolute():
+            file_name = str(Path(file_name).resolve())
+        
         if not self.is_valid_file_name(file_name):
             raise ValueError(f"Invalid file name: {file_name}")
         
@@ -35,20 +38,23 @@ class CodeContext:
     
     @classmethod
     def from_frame_info(cls, frame_info):
-        
         return CodeContext(frame_info.filename, frame_info.lineno, frame_info.positions, frame_info.code_context)
     
     def __str__(self) -> str:
         return f"File: {self.file_name}:L{self.line_number}: {self.extract_code_context()}"
     
-    def is_valid_file_name(self, value : str) -> bool:
-        print(f'>>>> {__file__}')
-        return isinstance(value,str) and Path(value).exists()
+    def is_valid_file_name(self, value: str) -> bool:
+        return isinstance(value, str) and Path(value).exists()
     
-    def is_valid_line_number(self, value : int) -> bool:
-        value_type = isinstance(value,int)
+    def is_valid_line_number(self, value: int) -> bool:
+        value_type = isinstance(value, int)
         
         with open(self.file_name) as f:
             self.line_counter = sum(1 for _ in f)
             
         return value_type and value <= self.line_counter
+
+    def extract_code_context(self) -> str:
+        if self.code_context:
+            return "\n".join(self.code_context)
+        return ""

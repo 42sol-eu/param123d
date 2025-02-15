@@ -3,8 +3,8 @@ from redbaron import RedBaron
 code = """
 #%% [Parameters]
 with ParameterGroup("MyGroup"):
-    my_param = Parameter(default=42)
-    another_param = Parameter(default="Hello")
+    my_param = IntegerParameter(default=42)
+    another_param = StringParameter(default="Hello")
     unrelated_var = 10
 
 #%% Another Section
