@@ -2,6 +2,76 @@
 
 ## Concepts 
 
+Every parameter has:
+
+- A group it belongs to
+- A name it is referenced with
+- A value it holds 
+- A type it represents
+- A help documentation (may be markdown or restructured text)
+
+Parameter can be grouped in:
+
+- `BaseParameter`: a simple value like a `boolean`, a `string` or a `color`.
+- `ChoiceParameter`: a selection of values `choices` that can map to a specific value.
+- `RangeParameter`: defines a range via `min` and `max` and an additional `step` and an optional `unit` element.
+- `CalculationParameter`: introduces a `calc` element in the constructor, that can hold a Python expression an optional `unit` element.
+
+## UI Element Mapping
+
+`number` is either an `int` or a `float` value. 
+
+### `ParameterGroup` 
+
+| `ui.expansion`   |  | 
+| `ui.badge`       |  | 
+
+
+### `BaseParameter`
+
+| `ui.switch`       | `boolean` |
+| `ui.checkbox`     | `boolean` |
+| `ui.input`        | `string`  | 
+| `ui.number`       | `number`  | 
+| `ui.color_input`  | `color`   |
+| `ui.color_picker` | `color`   |
+
+### `ChoiceParameter`
+
+| `ui.toggle` | `` |
+| `ui.radio`  | `` |
+| `ui.select` | `` |
+| `ui.icon`   | `icon` | 
+
+> [!Note]
+> `ui.select` can keep a `list` and a `dict`. The `dict` can be used to map visible values to internal values (e.g. readable names to numbers, color names to color values)
+
+> [!Note]
+> Use this also for Fonts, Axis, Planes
+
+### `RangeParameter`
+
+| `ui.input`  | `number` |
+| `ui.number` | `number` |
+| `ui.slider` | `number` |
+| `ui.range`  | 2*`number` |
+| `ui.knob`   | `number` |
+| `` | `` |
+
+> [!Note]
+> Use validation `dict` to check for ranges `{'message': lambda value: expression_OK}`
+
+> [!Note]
+> Check if min,max and step should be put into a `NamedTupple`
+
+### `CalculationParameter`
+
+| `ui.input`    | `calc` |
+| `ui.textarea` | `calc` |
+
+> [!Note]
+> Calculation should have an additional element to show the calculated value.
+
 ## Advices
 
 Using the `abstract syntax tree` to analyze the code for `ParameterGroup` and `{Type}Parameter`.
