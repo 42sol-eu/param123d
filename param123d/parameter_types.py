@@ -11,7 +11,7 @@ class ParameterType(Enum):
 	IntegerParameter = 'integer' # if >= 0: also used for counting
 	FloatParameter = 'float'     #
 	StringParameter = 'string'
-		
+	
 	# CAD-parameters
 	ColorParameter = 'color'     # #RRGGBBAA
 	AxisParameter = 'axis' # X, Y, Z 
@@ -21,8 +21,9 @@ class ParameterType(Enum):
 	# Specific 
 	# ! ConstantParameter = 'constant'         # for constants
 	ChoiceParameter = 'choice'                 # Using enum
+	RangeParameter = 'range'                   # A range of values	
 	CalculationParameter = 'calculation'	   # Defining a Python expression
- 	# ! LinearTranslationParameter = 'linear'  # Linear Function
+	# ! LinearTranslationParameter = 'linear'  # Linear Function
 	# ? Filter
 	# ? Derivation
 	# ? Integrate

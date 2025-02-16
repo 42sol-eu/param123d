@@ -33,10 +33,10 @@ Parameter can be grouped in:
 
 | nicegui element  | parameter type | notes |
 |------------------|----------------|-------|
-| `ui.switch`      | `boolean`      |       |
+| `ui.switch`      | `boolean`      | Default   |
 | `ui.checkbox`    | `boolean`      |       |
-| `ui.input`       | `string`       |       |
-| `ui.number`      | `number`       |       |
+| `ui.input`       | `string`       | Default   |
+| `ui.number`      | `number`       |    |
 | `ui.color_input` | `color`        |       |
 | `ui.color_picker`| `color`        |       |
 
@@ -44,9 +44,9 @@ Parameter can be grouped in:
 
 | nicegui element | parameter type | notes |
 |-----------------|----------------|-------|
+| `ui.select`     |                | Default      |
 | `ui.toggle`     |                |       |
 | `ui.radio`      |                |       |
-| `ui.select`     |                |       |
 | `ui.icon`       | `icon`         |       |
 
 > [!Note]
@@ -59,9 +59,9 @@ Parameter can be grouped in:
 
 | nicegui element | parameter type | notes |
 |-----------------|----------------|-------|
-| `ui.input`      | `number`       |       |
-| `ui.number`     | `number`       |       |
-| `ui.slider`     | `number`       |       |
+| `ui.input`      | `number`       | Generic input - MAYBE: not necessary due to ui.number! |
+| `ui.number`     | `number`       | Generic but more specific |
+| `ui.slider`     | `number`       | Default      |
 | `ui.range`      | 2*`number`     |       |
 | `ui.knob`       | `number`       |       |
 |                 |                |       |
@@ -76,13 +76,13 @@ Parameter can be grouped in:
 
 | nicegui element | parameter type | notes |
 |-----------------|----------------|-------|
-| `ui.input`      | `calc`         |       |
+| `ui.input`      | `calc`         | TODO: implement that the Python expression is displayed and the value can be shown  |
 | `ui.textarea`   | `calc`         |       |
 
 > [!Note]
 > Calculation should have an additional element to show the calculated value.
 
-## Advices
+## Advice
 
 Using the `abstract syntax tree` to analyze the code for `ParameterGroup` and `{Type}Parameter`.
 

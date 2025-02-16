@@ -121,13 +121,31 @@ if 0:
 class ChoiceParameter(BaseParameter):
     """A choice parameter class that inherits from the Parameter class."""
     _choices : List[UnionType]
+    _default_value : UnionType
     
     def __init__(self, name: Identifier, choices: List[UnionType], default_value: ParameterType = '', help: str = None):
         """Initialize the ChoiceParameter class."""
-        super().__init__(name,  self._choices[0], ParameterType.ChoiceParameter, help)
-        
         if self.valid_choices(choices):
-            self._choices = choices    
+            self._choices = choices 
+        else:
+            self._choices = ['A', 'B', 'C']   
+            
+        if type(self._choices) == dict: 
+            keys = list(self._choices.keys())
+            keys.sort()
+            if default_value not in keys:
+                self._default_value = keys[0]
+            else:
+                self._default_value = default_value
+        
+        else:
+            if default_value not in self._choices:
+                self._default_value = self._choices[0]
+            else: 
+                self._default_value = default_value
+
+        super().__init__(name,  self._default_value, ParameterType.ChoiceParameter, help)
+        
         
     # TODO: implement ChoiceParameter.create_ui()
     
@@ -139,12 +157,30 @@ class ChoiceParameter(BaseParameter):
                 if not isinstance(item, item_type):
                     return False
             # all items have the same type! 
-            return (isinstance(value, int) or isinstance(value, float) or isinstance(value, str))
+            return True
+        elif type(value) == dict:
+            item_type = None 
+            for key,value in value.items():
+                if not item_type: # set type by first entry
+                    item_type = type(value)
+                    
+                if not isinstance(value, item_type):
+                    return False
+            # all items have the same type! 
+            return True
         else:
             return False
         
 
-# ! CalculationParameter = 'calculation'   #
+    def create_ui(self):
+        label  = ui.label(self.name).props('w-full')
+        main = ui.select(options=self._choices)
+        main.set_value(self.value)
+        
+        help   = super().help_ui()
+        
+        return (label, main, help)
+
 # ! LinearTranslationParameter = 'linear'  # Linear Function
 # ? Filter
 # ? Derivation

@@ -7,6 +7,7 @@ import re
 from enum import Enum
 from typing import Optional, Union, Any #| [docs](https://docs.python.org/3/library/typing.html)
 import keyword       #| [docs](https://docs.python.org/3/library/keyword.html)
+from nicegui import ui
 
 # Define type aliases
 type Identifier = str
@@ -105,8 +106,13 @@ class BaseParameter:
             return isinstance(value, str)
                 
         elif self._type == ParameterType.ChoiceParameter:
-            # a choice value defines a list of same values 
             if type(value) == str or type(value) == int  or type(value) == float:
+                return True
+            else:
+                return False
+
+        elif self._type == ParameterType.RangeParameter:
+            if type(value) == int  or type(value) == float:
                 return True
             else:
                 return False
@@ -181,6 +187,90 @@ class BaseParameter:
     def help_type(self) -> HelpType:
         return self._help_type
 
+    def help_ui(self):
+        if self.help_type == HelpType.MARKDOWN:
+            return ui.markdown(self.help)
+        elif self.help_type == HelpType.RESTRUCTURED_TEXT:
+            return ui.rst(self.help)
+        else:
+            return ui.label(self.help)
+
+    def create_ui(self):
+        label  = ui.label(self.name).props('w-full')
+        # TODO: label.set_tooltip(self.param_type)
+        element = ui.input()
+        element.set_value(self.value)
+        
+        help = self.help_ui()
+        
+        return (label, element, help)
+
+    # Arithmetic operations
+    def __add__(self, other):
+        if isinstance(other, BaseParameter):
+            return self._value + other._value
+        return self._value + other
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __sub__(self, other):
+        if isinstance(other, BaseParameter):
+            return self._value - other._value
+        return self._value - other
+
+    def __rsub__(self, other):
+        if isinstance(other, BaseParameter):
+            return other._value - self._value
+        return other - self._value
+
+    def __mul__(self, other):
+        if isinstance(other, BaseParameter):
+            return self._value * other._value
+        return self._value * other
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __truediv__(self, other):
+        if isinstance(other, BaseParameter):
+            return self._value / other._value
+        return self._value / other
+
+    def __rtruediv__(self, other):
+        if isinstance(other, BaseParameter):
+            return other._value / self._value
+        return other / self._value
+
+    def __floordiv__(self, other):
+        if isinstance(other, BaseParameter):
+            return self._value // other._value
+        return self._value // other
+
+    def __rfloordiv__(self, other):
+        if isinstance(other, BaseParameter):
+            return other._value // self._value
+        return other // self._value
+
+    def __mod__(self, other):
+        if isinstance(other, BaseParameter):
+            return self._value % other._value
+        return self._value % other
+
+    def __rmod__(self, other):
+        if isinstance(other, BaseParameter):
+            return other._value % self._value
+        return other % self._value
+
+    def __pow__(self, other):
+        if isinstance(other, BaseParameter):
+            return self._value ** other._value
+        return self._value ** other
+
+    def __rpow__(self, other):
+        if isinstance(other, BaseParameter):
+            return other._value ** self._value
+        return other ** self._value
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -190,7 +280,7 @@ class RangeParameter(BaseParameter):
     _min_value: Optional[UnionNumber] = None
     _max_value: Optional[UnionNumber] = None
     _step_value: Optional[UnionNumber] = None
-    _default_value: Optional[UnionNumber] = None
+    _default_value: Optional[UnionNumber] = None # TODO: check if default value is needed.
 
     def __init__(self, name: Identifier, value: UnionType, param_type: ParameterType, unit: str,  help: Optional[str] = None, min_value: Optional[UnionNumber] = None, max_value: Optional[UnionNumber] = None, step_value: Optional[UnionNumber] = None, default_value: Optional[UnionNumber] = None):
         super().__init__(name, value, param_type, help)
@@ -267,10 +357,24 @@ class RangeParameter(BaseParameter):
     @property
     def default_value(self) -> Optional[UnionNumber]:
         return self._default_value
+    
 
     @property
     def unit(self) -> str:
         return self._unit
+
+    def create_ui(self):
+        label  = ui.label(self.name).props('w-full')
+        # TODO: label.set_tooltip(self.param_type)
+        with ui.row().classes('m-0 p-0') as element:
+            element_1 = ui.label(self.value).props('text-right')
+            if self.unit:
+                element_2 = ui.label(self.unit)
+            element_3 = ui.slider(value=self.value, min=self._min_value, max=self._max_value, step=self._step_value)
+            element_1.bind_text_from(element_3, 'value')
+        help = self.help_ui()
+        
+        return (label, element, help)
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -326,3 +430,21 @@ class CalculationParameter(BaseParameter):
     @property
     def calc(self) -> Optional[str]:
         return self._calc
+    
+    def create_ui(self):
+        label  = ui.label(self.name).props('w-full')
+        # TODO: label.set_tooltip(self.param_type)
+        
+        
+        # value = ui.label(self.value)
+        # TODO: value.set_value(self.value)
+
+        element = ui.input().classes('w-full')
+        element.set_value(str(self.calc))
+        # TODO: how to solve this? Probably need to use RedBaron
+            
+        
+        help = self.help_ui()
+
+        
+        return (label, element, help)
