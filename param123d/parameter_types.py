@@ -17,30 +17,12 @@ class ParameterType(Enum):
 	AxisParameter = 'axis' # X, Y, Z 
 	LocationParameter = 'location' # x,y,z 
 	RotationParameter = 'rotation'  #
-	LengthParameter = 'length' # [mm]
-	AreaParameter = 'area' # [mm^2]
-	VolumeParameter = 'volume' # [mm^3] 
-	MassParameter = 'mass' # [g]
-	AngleParameter = 'angle' # 
-	
-	# Physical (non CAD)
-	TimeParameter = 'time' 
-	SpeedParameter = 'speed'
-	AccelerationParameter = 'acceleration'
-	ForceParameter = 'force'
-	TorqueParameter = 'torque' 
-	TemperatureParameter = 'temperature'
-	# ! ResistanceParameter = 'resistance' 
-	# ! CurrentParameter = 'current'
-	# ! VoltageParameter = 'voltage'
-	# ! ConsumptionParameter = 'consumption' 
-	# ! FrequencyParameter = 'frequency'
 	
 	# Specific 
 	# ! ConstantParameter = 'constant'         # for constants
-	ChoiceParameter = 'choice'             # Using enum
-	# ! CalculationParameter = 'calculation'   #
-	# ! LinearTranslationParameter = 'linear'  # Linear Function
+	ChoiceParameter = 'choice'                 # Using enum
+	CalculationParameter = 'calculation'	   # Defining a Python expression
+ 	# ! LinearTranslationParameter = 'linear'  # Linear Function
 	# ? Filter
 	# ? Derivation
 	# ? Integrate

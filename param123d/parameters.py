@@ -1,4 +1,4 @@
-from .parameter_base import BaseParameter, RangeParameter, CalculationParameter
+from .parameter_base import Identifier, UnionType, UnionNumber, UnionFilesystem, BaseParameter, RangeParameter, CalculationParameter
 from .parameter_types import ParameterType
 from .parameter_groups import ParameterGroup
 from nicegui import ui
@@ -120,9 +120,9 @@ if 0:
 
 class ChoiceParameter(BaseParameter):
     """A choice parameter class that inherits from the Parameter class."""
-    _choices : List[Union[str, int, float]]
+    _choices : List[UnionType]
     
-    def __init__(self, name: str, choices: List[Union[str, int, float]], default_value: Union[str, int, float] = '', help: str = None):
+    def __init__(self, name: Identifier, choices: List[UnionType], default_value: ParameterType = '', help: str = None):
         """Initialize the ChoiceParameter class."""
         super().__init__(name,  self._choices[0], ParameterType.ChoiceParameter, help)
         
@@ -131,7 +131,7 @@ class ChoiceParameter(BaseParameter):
         
     # TODO: implement ChoiceParameter.create_ui()
     
-    def valid_choices(self, value : List[Union[str, int, float]]) -> bool:
+    def valid_choices(self, value : List[ParameterType]) -> bool:
         # a choice value defines a list of same values 
         if type(value) == list or type(value) == tuple or type(value) == set:
             item_type = type(value[0])
@@ -207,7 +207,7 @@ class FileNameParameter(BaseParameter):
 class FileParameter(BaseParameter):
     """A file parameter class that inherits from the Parameter class."""
     
-    def __init__(self, name: Union[str, Path], value: str, help: str = None):
+    def __init__(self, name: UnionFilesystem, value: str, help: str = None):
         """Initialize the FileParameter class."""
         
         super().__init__(name, value, ParameterType.FileParameter, help)
@@ -216,7 +216,7 @@ class FileParameter(BaseParameter):
 class PathParameter(BaseParameter):
     """A path parameter class that inherits from the Parameter class."""
     
-    def __init__(self, name : str, value : str, help : str = None):
+    def __init__(self, name : str, value : UnionFilesystem, help : str = None):
         """Initialize the PathParameter class."""
         
         super().__init__(name, value, ParameterType.PathParameter, help)

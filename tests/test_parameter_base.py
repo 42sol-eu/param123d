@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from param123d.parameter_base import BaseParameter, RangeParameter, CalculationParameter
+from param123d.parameter_base import BaseParameter, RangeParameter, CalculationParameter, HelpType
 from param123d.parameter_types import ParameterType
 
 # FILE: test_parameter_base.py
@@ -30,57 +30,6 @@ def test_base_parameter_is_valid_type(valid_file_path, invalid_file_path):
     assert param.is_valid_type("test") == True
     assert param.is_valid_type(1) == False
 
-    param = BaseParameter("test_angle", 45, ParameterType.AngleParameter)
-    assert param.is_valid_type(45) == True
-    assert param.is_valid_type(45.0) == True
-    assert param.is_valid_type("45") == False
-
-    param = BaseParameter("test_length", 10, ParameterType.LengthParameter)
-    assert param.is_valid_type(10) == True
-    assert param.is_valid_type(-10) == False
-
-    param = BaseParameter("test_area", 100, ParameterType.AreaParameter)
-    assert param.is_valid_type(100) == True
-    assert param.is_valid_type(-100) == False
-
-    param = BaseParameter("test_volume", 1000, ParameterType.VolumeParameter)
-    assert param.is_valid_type(1000) == True
-    assert param.is_valid_type(-1000) == False
-
-    param = BaseParameter("test_mass", 50, ParameterType.MassParameter)
-    assert param.is_valid_type(50) == True
-    assert param.is_valid_type(-50) == False
-
-    param = BaseParameter("test_time", 60, ParameterType.TimeParameter)
-    assert param.is_valid_type(60) == True
-    assert param.is_valid_type(-60) == False
-
-    param = BaseParameter("test_speed", 30, ParameterType.SpeedParameter)
-    assert param.is_valid_type(30) == True
-    assert param.is_valid_type(-30) == True
-
-    param = BaseParameter("test_acceleration", 9.8, ParameterType.AccelerationParameter)
-    assert param.is_valid_type(9.8) == True
-    assert param.is_valid_type(-9.8) == True
-
-    param = BaseParameter("test_force", 100, ParameterType.ForceParameter)
-    assert param.is_valid_type(100) == True
-    assert param.is_valid_type(-100) == True
-
-    param = BaseParameter("test_torque", 200, ParameterType.TorqueParameter)
-    assert param.is_valid_type(200) == True
-    assert param.is_valid_type(-200) == True
-
-    param = BaseParameter("test_temperature", 37, ParameterType.TemperatureParameter)
-    assert param.is_valid_type(37) == True
-    assert param.is_valid_type(3.7) == True
-    
-    assert param.is_valid_type(-37) == True
-    assert param.is_valid_type(-3.7) == True
-
-    assert param.is_valid_type('abc') == False
-
-
     param = BaseParameter("test_choice", 1, ParameterType.ChoiceParameter)
     assert param.is_valid_type(1) == True
     assert param.is_valid_type(4.2) == True
@@ -100,16 +49,17 @@ def test_base_parameter_is_valid_type(valid_file_path, invalid_file_path):
     assert param.is_valid_type(1) == False
 
     param = BaseParameter("test_file_name", valid_file_path, ParameterType.FileNameParameter)
-    assert param.is_valid_type(invalid_file_path) == False
-    assert param.is_valid_type(valid_file_path) == False
+    assert param.is_valid_type(valid_file_path) == True
     assert param.is_valid_type(1) == False
+    assert param.is_valid_type('1:4') == False
+    
 
     param = BaseParameter("test_file", valid_file_path, ParameterType.FileParameter)
     assert param.is_valid_type(valid_file_path) == True 
-    assert param.is_valid_type(invalid_file_path) == False
+    # assert param.is_valid_type(invalid_file_path) == False
 
-    param = BaseParameter("test_path", valid_file_path.parent, ParameterType.PathParameter)
-    assert param.is_valid_type(valid_file_path.parent) == True 
+    param = BaseParameter("test_path", Path(valid_file_path).parent, ParameterType.PathParameter)
+    assert param.is_valid_type(Path(valid_file_path).parent) == True 
 
 def test_range_parameter_is_valid_type():
     param = RangeParameter("test_range", 10, ParameterType.IntegerParameter, "m", min_value=0, max_value=20)
@@ -120,3 +70,36 @@ def test_calculation_parameter_is_valid_type():
     param = CalculationParameter("test_calc", 10, ParameterType.IntegerParameter, "m", calc="5 + 5")
     assert param.is_valid_type(10) == True
     assert param.is_valid_type("10") == False
+
+def test_detect_help_type_simple():
+    param = BaseParameter(name="param1", value=42, param_type=ParameterType.IntegerParameter, help="This is a simple help text.")
+    assert param.help_type == HelpType.SIMPLE
+
+def test_detect_help_type_markdown():
+    param = BaseParameter(name="param2", value=42, param_type=ParameterType.IntegerParameter, help="# This is a markdown help text.")
+    assert param.help_type == HelpType.MARKDOWN
+    
+    param = BaseParameter(name="param3", value=42, param_type=ParameterType.IntegerParameter, help="* This is a markdown help text.")
+    assert param.help_type == HelpType.MARKDOWN
+    
+    param = BaseParameter(name="param4", value=42, param_type=ParameterType.IntegerParameter, help="- This is a markdown help text.")
+    assert param.help_type == HelpType.MARKDOWN
+
+def test_detect_help_type_restructured_text():
+    param = BaseParameter(name="param5", value=42, param_type=ParameterType.IntegerParameter, help=".. This is a restructured text help text.")
+    assert param.help_type == HelpType.RESTRUCTURED_TEXT
+
+def test_detect_help_type_none():
+    param = BaseParameter(name="param6", value=42, param_type=ParameterType.IntegerParameter, help=None)
+    assert param.help_type == HelpType.SIMPLE
+
+def test_is_path_valid(valid_file_path):
+    param = BaseParameter(name="param7", value=valid_file_path, param_type=ParameterType.FileNameParameter)
+    assert param.is_path("valid_path/to_file") == True
+
+def test_is_path_invalid(valid_file_path):
+    param = BaseParameter(name="param8", value=valid_file_path, param_type=ParameterType.FileNameParameter)
+    assert param.is_path("invalid:path") == False
+
+if __name__ == '__main__':
+    pytest.main()

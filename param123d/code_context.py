@@ -5,7 +5,7 @@ A code context object to capture file name, line number, and code context.
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 from pathlib import Path
-
+from .parameter_base import Identifier
 
 # TODO: is this really necessary (maybe yes if `ast` is used). But `RedBaron` can manipulate the values directly.
 
@@ -16,7 +16,7 @@ class CodeContext:
     positions: Optional[Tuple[int, int]] = None
     code_context: Optional[List[str]] = None
     
-    def __init__(self, file_name: str, line_number: int, positions: Tuple[int, int], code_context: List[str]):
+    def __init__(self, file_name: Identifier, line_number: int, positions: Tuple[int, int], code_context: List[str]):
         
         if not Path(file_name).is_absolute():
             file_name = str(Path(file_name).resolve())
